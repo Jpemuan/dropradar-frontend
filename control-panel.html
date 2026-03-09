@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DropRadar Control Panel</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono&display=swap" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #070b14;
+      color: #e2e8f0;
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      padding: 32px 24px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .logo {
+      width: 52px;
+      height: 52px;
+      background: linear-gradient(135deg, #3b82f6, #6366f1);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      margin: 0 auto 14px;
+    }
+
+    .header h1 {
+      font-size: 26px;
+      font-weight: 700;
+      color: #e2e8f0;
+    }
+
+    .header p {
+      color: #64748b;
+      font-size: 13px;
+      margin-top: 6px;
+    }
+
+    .time-bar {
+      background: #0d1424;
+      border: 1px solid #1e2d45;
+      border-radius: 10px;
+      padding: 10px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 32px;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .time-bar span {
+      color: #64748b;
+      font-size: 12px;
+      font-family: 'DM Mono', monospace;
+    }
+
+    .time-bar #clock {
+      color: #3b82f6;
+      font-weight: 600;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 16px;
+      max-width: 900px;
+      margin: 0 auto 32px;
+    }
+
+    .card {
+      background: #0d1424;
+      border: 1px solid #1e2d45;
+      border-radius: 16px;
+      padding: 24px;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+
+    .card:hover {
+      border-color: #3b82f6;
+      transform: translateY(-2px);
+    }
+
+    .card-icon {
+      font-size: 28px;
+      margin-bottom: 12px;
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .card-desc {
+      color: #64748b;
+      font-size: 12px;
+      margin-bottom: 18px;
+      line-height: 1.5;
+    }
+
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 11px 16px;
+      border: none;
+      border-radius: 9px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+      transition: opacity 0.15s, transform 0.1s;
+      margin-bottom: 8px;
+    }
+
+    .btn:last-child { margin-bottom: 0; }
+
+    .btn:active { transform: scale(0.98); }
+
+    .btn-blue {
+      background: linear-gradient(135deg, #3b82f6, #6366f1);
+      color: #fff;
+    }
+
+    .btn-green {
+      background: #052e16;
+      border: 1px solid #16a34a;
+      color: #4ade80;
+    }
+
+    .btn-yellow {
+      background: #431407;
+      border: 1px solid #d97706;
+      color: #fbbf24;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid #1e2d45;
+      color: #94a3b8;
+    }
+
+    .btn-ghost:hover { border-color: #3b82f6; color: #3b82f6; }
+
+    .status-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .status-dot {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #111827;
+      border: 1px solid #1e2d45;
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 11px;
+      font-family: 'DM Mono', monospace;
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    .dot-green { background: #10b981; }
+    .dot-blue  { background: #3b82f6; }
+    .dot-yellow{ background: #f59e0b; }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .result-box {
+      background: #070b14;
+      border: 1px solid #1e2d45;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: #64748b;
+      margin-top: 10px;
+      min-height: 36px;
+      display: none;
+      word-break: break-all;
+      line-height: 1.5;
+    }
+
+    .result-box.visible { display: block; }
+    .result-box.success { color: #4ade80; border-color: #16a34a; background: #052e16; }
+    .result-box.error   { color: #f87171; border-color: #dc2626; background: #2b0d0d; }
+    .result-box.loading { color: #a5b4fc; border-color: #6366f1; background: #1e1b4b; }
+
+    .divider {
+      border: none;
+      border-top: 1px solid #1e2d45;
+      margin: 12px 0;
+    }
+
+    .section-label {
+      color: #64748b;
+      font-size: 10px;
+      font-family: 'DM Mono', monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 16px;
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .footer {
+      text-align: center;
+      color: #1e2d45;
+      font-size: 11px;
+      font-family: 'DM Mono', monospace;
+      margin-top: 40px;
+    }
+
+    .copy-btn {
+      background: transparent;
+      border: 1px solid #1e2d45;
+      border-radius: 6px;
+      padding: 3px 8px;
+      color: #64748b;
+      font-size: 10px;
+      cursor: pointer;
+      font-family: 'DM Mono', monospace;
+      margin-left: 8px;
+      transition: all 0.15s;
+    }
+
+    .copy-btn:hover { border-color: #3b82f6; color: #3b82f6; }
+
+    .url-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #070b14;
+      border: 1px solid #1e2d45;
+      border-radius: 8px;
+      padding: 8px 12px;
+      margin-bottom: 8px;
+    }
+
+    .url-text {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: #3b82f6;
+      word-break: break-all;
+      flex: 1;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #052e16;
+      border: 1px solid #16a34a;
+      color: #4ade80;
+      border-radius: 10px;
+      padding: 12px 24px;
+      font-size: 13px;
+      font-weight: 500;
+      display: none;
+      z-index: 9999;
+      white-space: nowrap;
+    }
+
+    .toast.show { display: block; animation: fadeIn 0.2s ease; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+      to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="toast" id="toast"></div>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="logo">⚡</div>
+    <h1>DropRadar Control Panel</h1>
+    <p>Your daily command centre for managing your WooCommerce dropshipping store</p>
+  </div>
+
+  <!-- Time bar -->
+  <div class="time-bar">
+    <span>🗓️ <span id="date"></span></span>
+    <span>🕐 <span id="clock"></span></span>
+    <span>🌍 West Africa Time</span>
+  </div>
+
+  <!-- Status -->
+  <div class="section-label">▸ Live Status</div>
+  <div style="max-width:900px; margin: 0 auto 24px; display:flex; gap:10px; flex-wrap:wrap;">
+    <div class="status-dot"><div class="dot dot-green"></div> Store App Live</div>
+    <div class="status-dot"><div class="dot dot-blue" id="backend-dot"></div> <span id="backend-status">Checking Backend...</span></div>
+    <div class="status-dot"><div class="dot dot-yellow"></div> WooCommerce Connected</div>
+  </div>
+
+  <!-- DAILY ACTIONS -->
+  <div class="section-label">▸ Daily Actions</div>
+  <div class="grid">
+
+    <!-- Open App -->
+    <div class="card">
+      <div class="card-icon">🌐</div>
+      <div class="card-title">Open Your Store App</div>
+      <div class="card-desc">Opens your live DropRadar dashboard where you manage products, orders and pricing.</div>
+      <a href="https://dropradar-frontend-lkjj-ilqai594t-emuanjeremiah-6693s-projects.vercel.app" target="_blank" class="btn btn-blue">
+        🚀 Open DropRadar App
+      </a>
+    </div>
+
+    <!-- Sync Orders -->
+    <div class="card">
+      <div class="card-icon">🧾</div>
+      <div class="card-title">Sync Orders</div>
+      <div class="card-desc">Pulls all new orders from your WooCommerce store into DropRadar. Run this every morning.</div>
+      <button class="btn btn-green" onclick="runSync('orders')">
+        🔄 Sync Orders Now
+      </button>
+      <div class="result-box" id="orders-result">Waiting...</div>
+    </div>
+
+    <!-- Sync Products -->
+    <div class="card">
+      <div class="card-icon">📦</div>
+      <div class="card-title">Sync Products</div>
+      <div class="card-desc">Updates your product list from WooCommerce. Run this whenever you add new products.</div>
+      <button class="btn btn-green" onclick="runSync('products')">
+        🔄 Sync Products Now
+      </button>
+      <div class="result-box" id="products-result">Waiting...</div>
+    </div>
+
+    <!-- Check Backend -->
+    <div class="card">
+      <div class="card-icon">⚙️</div>
+      <div class="card-title">Check Backend</div>
+      <div class="card-desc">Checks if your Railway backend server is running. If it shows error, wait 30 seconds and try again.</div>
+      <button class="btn btn-yellow" onclick="checkBackend()">
+        📡 Check Backend Health
+      </button>
+      <div class="result-box" id="backend-result">Waiting...</div>
+    </div>
+
+    <!-- Sync Both -->
+    <div class="card">
+      <div class="card-icon">⚡</div>
+      <div class="card-title">Full Daily Sync</div>
+      <div class="card-desc">Syncs everything at once — orders and products together. Best to run this first thing every morning.</div>
+      <button class="btn btn-blue" onclick="runFullSync()">
+        ⚡ Sync Everything Now
+      </button>
+      <div class="result-box" id="full-result">Waiting...</div>
+    </div>
+
+    <!-- WooCommerce -->
+    <div class="card">
+      <div class="card-icon">🛒</div>
+      <div class="card-title">WooCommerce Dashboard</div>
+      <div class="card-desc">Opens your WordPress store backend on Hostinger where you manage your actual WooCommerce store.</div>
+      <a href="https://hpanel.hostinger.com" target="_blank" class="btn btn-ghost">
+        Open Hostinger Panel
+      </a>
+    </div>
+
+  </div>
+
+  <!-- QUICK LINKS -->
+  <div class="section-label">▸ Quick Links — Click to Copy</div>
+  <div style="max-width:900px; margin: 0 auto 32px;">
+    <div style="background:#0d1424; border:1px solid #1e2d45; border-radius:16px; padding:22px;">
+
+      <div style="color:#94a3b8; font-size:13px; margin-bottom:14px; font-weight:500;">Your Important URLs</div>
+
+      <div class="url-row">
+        <span class="url-text">dropradar-frontend-lkjj-ilqai594t-emuanjeremiah-6693s-projects.vercel.app</span>
+        <button class="copy-btn" onclick="copyText('https://dropradar-frontend-lkjj-ilqai594t-emuanjeremiah-6693s-projects.vercel.app', this)">Copy</button>
+      </div>
+
+      <div class="url-row">
+        <span class="url-text">dropradar-backend-production.up.railway.app</span>
+        <button class="copy-btn" onclick="copyText('https://dropradar-backend-production.up.railway.app', this)">Copy</button>
+      </div>
+
+      <div class="url-row">
+        <span class="url-text">dropradar-backend-production.up.railway.app/api/sync-orders</span>
+        <button class="copy-btn" onclick="copyText('https://dropradar-backend-production.up.railway.app/api/sync-orders', this)">Copy</button>
+      </div>
+
+      <div class="url-row">
+        <span class="url-text">dropradar-backend-production.up.railway.app/api/sync-products</span>
+        <button class="copy-btn" onclick="copyText('https://dropradar-backend-production.up.railway.app/api/sync-products', this)">Copy</button>
+      </div>
+
+      <div class="url-row">
+        <span class="url-text">github.com/Jpemuan/dropradar-frontend</span>
+        <button class="copy-btn" onclick="copyText('https://github.com/Jpemuan/dropradar-frontend', this)">Copy</button>
+      </div>
+
+      <div class="url-row">
+        <span class="url-text">github.com/Jpemuan/dropradar-backend</span>
+        <button class="copy-btn" onclick="copyText('https://github.com/Jpemuan/dropradar-backend', this)">Copy</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- DAILY CHECKLIST -->
+  <div class="section-label">▸ Daily Morning Checklist</div>
+  <div style="max-width:900px; margin: 0 auto 32px;">
+    <div style="background:#0d1424; border:1px solid #1e2d45; border-radius:16px; padding:22px;">
+      <div style="color:#94a3b8; font-size:13px; margin-bottom:16px; font-weight:500;">Every morning tick these off:</div>
+      <div id="checklist"></div>
+      <button onclick="resetChecklist()" style="margin-top:16px; background:transparent; border:1px solid #1e2d45; border-radius:8px; padding:7px 14px; color:#64748b; font-size:12px; cursor:pointer; font-family:'DM Sans',sans-serif;">
+        Reset Checklist
+      </button>
+    </div>
+  </div>
+
+  <div class="footer">DropRadar Control Panel · Built for your WooCommerce store · Bookmark this page</div>
+
+  <script>
+    const BACKEND = "https://dropradar-backend-production.up.railway.app";
+
+    // Clock
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('clock').textContent = now.toLocaleTimeString('en-GB', { timeZone: 'Africa/Lagos' });
+      document.getElementById('date').textContent = now.toLocaleDateString('en-GB', { timeZone: 'Africa/Lagos', weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    }
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    // Toast notification
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    // Copy text
+    function copyText(text, btn) {
+      navigator.clipboard.writeText(text).then(() => {
+        btn.textContent = 'Copied!';
+        btn.style.color = '#4ade80';
+        btn.style.borderColor = '#16a34a';
+        setTimeout(() => { btn.textContent = 'Copy'; btn.style.color = ''; btn.style.borderColor = ''; }, 2000);
+        showToast('✅ Copied to clipboard!');
+      });
+    }
+
+    // Show result in box
+    function showResult(id, msg, type) {
+      const el = document.getElementById(id);
+      el.textContent = msg;
+      el.className = 'result-box visible ' + type;
+    }
+
+    // Check backend health
+    async function checkBackend() {
+      showResult('backend-result', '⏳ Checking... (may take 30 seconds if sleeping)', 'loading');
+      try {
+        const res = await fetch(BACKEND + '/');
+        const data = await res.json();
+        showResult('backend-result', '✅ ' + JSON.stringify(data), 'success');
+        document.getElementById('backend-status').textContent = 'Backend Running';
+        document.getElementById('backend-dot').className = 'dot dot-green';
+        showToast('✅ Backend is healthy!');
+      } catch(e) {
+        showResult('backend-result', '❌ Cannot reach backend. Wait 30 seconds and try again.', 'error');
+        document.getElementById('backend-status').textContent = 'Backend Sleeping';
+        document.getElementById('backend-dot').className = 'dot dot-yellow';
+      }
+    }
+
+    // Sync orders
+    async function runSync(type) {
+      const id = type + '-result';
+      showResult(id, '⏳ Syncing ' + type + '... please wait', 'loading');
+      try {
+        const res = await fetch(BACKEND + '/api/sync-' + type);
+        const data = await res.json();
+        if (data.error) {
+          showResult(id, '❌ Error: ' + data.error, 'error');
+        } else {
+          showResult(id, '✅ ' + data.message, 'success');
+          showToast('✅ ' + data.message);
+          markChecklist(type === 'orders' ? 0 : 1);
+        }
+      } catch(e) {
+        showResult(id, '❌ Could not connect. Backend may be sleeping — wait 30 seconds and try again.', 'error');
+      }
+    }
+
+    // Full sync
+    async function runFullSync() {
+      showResult('full-result', '⏳ Syncing everything... please wait', 'loading');
+      try {
+        const [o, p] = await Promise.all([
+          fetch(BACKEND + '/api/sync-orders').then(r => r.json()),
+          fetch(BACKEND + '/api/sync-products').then(r => r.json())
+        ]);
+        if (o.error || p.error) {
+          showResult('full-result', '❌ Error: ' + (o.error || p.error), 'error');
+        } else {
+          showResult('full-result', '✅ Orders: ' + o.message + ' | Products: ' + p.message, 'success');
+          showToast('✅ Everything synced!');
+          markChecklist(0);
+          markChecklist(1);
+        }
+      } catch(e) {
+        showResult('full-result', '❌ Could not connect. Backend may be sleeping — wait 30 seconds and try again.', 'error');
+      }
+    }
+
+    // Checklist
+    const TASKS = [
+      'Sync orders from WooCommerce',
+      'Sync products from WooCommerce',
+      'Check for price alerts in DropRadar',
+      'Fulfill any pending orders',
+      'Check stock levels for low inventory',
+    ];
+
+    function loadChecklist() {
+      const saved = JSON.parse(localStorage.getItem('checklist') || '[]');
+      const container = document.getElementById('checklist');
+      container.innerHTML = '';
+      TASKS.forEach((task, i) => {
+        const checked = saved.includes(i);
+        const row = document.createElement('div');
+        row.style.cssText = 'display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid #1e2d45; cursor:pointer;';
+        row.innerHTML = `
+          <div style="width:20px; height:20px; border-radius:5px; border:2px solid ${checked ? '#16a34a' : '#1e2d45'}; background:${checked ? '#052e16' : 'transparent'}; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:12px;">
+            ${checked ? '✓' : ''}
+          </div>
+          <span style="font-size:13px; color:${checked ? '#64748b' : '#e2e8f0'}; text-decoration:${checked ? 'line-through' : 'none'};">${task}</span>
+        `;
+        row.onclick = () => toggleChecklist(i);
+        container.appendChild(row);
+      });
+    }
+
+    function toggleChecklist(i) {
+      const saved = JSON.parse(localStorage.getItem('checklist') || '[]');
+      const idx = saved.indexOf(i);
+      if (idx > -1) saved.splice(idx, 1);
+      else saved.push(i);
+      localStorage.setItem('checklist', JSON.stringify(saved));
+      loadChecklist();
+    }
+
+    function markChecklist(i) {
+      const saved = JSON.parse(localStorage.getItem('checklist') || '[]');
+      if (!saved.includes(i)) saved.push(i);
+      localStorage.setItem('checklist', JSON.stringify(saved));
+      loadChecklist();
+    }
+
+    function resetChecklist() {
+      localStorage.removeItem('checklist');
+      loadChecklist();
+      showToast('✅ Checklist reset!');
+    }
+
+    // Auto check backend on load
+    window.onload = function() {
+      loadChecklist();
+      setTimeout(checkBackend, 1000);
+    };
+  </script>
+
+</body>
+</html>
